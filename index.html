@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Casey Earn App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background: #111d2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Mobile Container Setup */
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            background: #1a283a;
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* Utility Components */
+        .btn {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #2c3e50;
+            background: #0f172a;
+            color: white;
+            font-size: 15px;
+        }
+
+        /* Login Screen */
+        #login-screen {
+            justify-content: center;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00c6ff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+        }
+        .tagline {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-bottom: 30px;
+        }
+
+        /* Header */
+        .app-header {
+            background: #0f172a;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #23354d;
+            width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #0072ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .wallet-card {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            padding: 15px;
+            border-radius: 15px;
+            width: 100%;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Grid Tasks */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .task-card {
+            background: #23354d;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #2c4260;
+            transition: 0.3s;
+        }
+
+        .task-card:active {
+            background: #2c4260;
+        }
+
+        .task-card icon {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* AI Notification */
+        .ai-status {
+            background: rgba(0, 198, 255, 0.1);
+            border: 1px solid #00c6ff;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #00c6ff;
+            margin-top: 15px;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            margin-top: auto;
+            background: #0f172a;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            border-top: 2px solid #23354d;
+            width: 100%;
+        }
+
+        .nav-item {
+            font-size: 13px;
+            color: #a0aec0;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .nav-item.active-nav {
+            color: #00c6ff;
+            font-weight: bold;
+        }
+
+        /* Ad Placement Styling */
+        .ad-slot {
+            margin: 10px 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="login-screen" class="screen active">
+        <div class="logo">Casey Earn</div>
+        <div class="tagline">100% Real AI Payment App</div>
+        
+        <select id="lang-select" onchange="changeLanguage()">
+            <option value="bn">বাংলা (Bengali)</option>
+            <option value="en">English</option>
+            <option value="ar">العربية (Arabic)</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+        </select>
+
+        <input type="text" id="reg-name" placeholder="আপনার পুরো নাম (Full Name)">
+        <input type="email" id="reg-email" placeholder="ইমেইল এড্রেস (Email)">
+        <input type="password" id="reg-pass" placeholder="পাসওয়ার্ড (Password)">
+        <button class="btn" onclick="handleLogin()" id="btn-login">লগইন / রেজিস্টার</button>
+    </div>
+
+    <div id="dashboard-screen" class="screen">
+        <div class="app-header">
+            <div class="user-info">
+                <div class="avatar" id="user-avatar">U</div>
+                <div>
+                    <h4 id="user-display-name">User Name</h4>
+                    <small style="color: #a0aec0;">Profile Active</small>
+                </div>
+            </div>
+            <select id="dashboard-lang" onchange="syncLanguage(this.value)" style="width: auto; margin:0; padding: 5px;">
+                <option value="bn">BN</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+                <option value="hi">HI</option>
+            </select>
+        </div>
+
+        <div class="wallet-card">
+            <div>
+                <p style="font-size: 14px;" id="txt-balance">মোট ব্যালেন্স</p>
+                <h2 id="coin-balance">0 Coins</h2>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 14px;" id="txt-value">মূল্য ($)</p>
+                <h2 id="usd-balance">$0.00</h2>
+            </div>
+        </div>
+
+        <div id="ai-box" class="ai-status">🤖 AI Engine: প্রসেসিং...</div>
+
+        <div class="task-grid">
+            <div class="task-card" onclick="playTask('quiz', 25)">
+                <icon>🧠</icon><span id="task-quiz">কুইজ খেলুন</span><br><small style="color:#38ef7d">+25 Coins</small>
+            </div>
+            <div class="task-card" onclick="playTask('spin', 25)">
+                <icon>🎡</icon><span id="task-spin">লাকি স্পিন</span><br><small style="color:#38ef7d">+25 Coins</small>
+            </div>
+            <div class="task-card" onclick="playTask('math', 25)">
+                <icon>🧮</icon><span id="task-math">অংক করুন</span><br><small style="color:#38ef7d">+25 Coins</small>
+            </div>
+            <div class="task-card" onclick="playTask('scratch', 25)">
+                <icon>⏳</icon><span id="task-scratch">স্ক্র্যাচ কার্ড</span><br><small style="color:#38ef7d">+25 Coins</small>
+            </div>
+            <div class="task-card" onclick="playTask('game', 25)">
+                <icon>🎮</icon><span id="task-game">গেম খেলুন</span><br><small style="color:#38ef7d">+25 Coins</small>
+            </div>
+            <div class="task-card" onclick="playTask('ad', 50)">
+                <icon>📺</icon><span id="task-ad">ভিডিও অ্যাড</span><br><small style="color:#e91e63">🔥 +50 Coins</small>
+            </div>
+        </div>
+
+        <div style="background: #23354d; width:100%; padding: 15px; border-radius:15px; margin-top:15px; text-align:center;">
+            <p id="txt-refer">বন্ধুদের ইনভাইট করে ১০০০ কয়েন পান!</p>
+            <p style="color:#00c6ff; font-weight:bold; margin-top:5px; letter-spacing: 2px;">REF-CASEY77</p>
+            <button class="btn" style="margin-top:5px; padding:6px;" onclick="applyReferral()" id="btn-refer">রেফার কোড ব্যবহার করুন</button>
+        </div>
+
+        <!-- Ad Slot 1 -->
+        <div class="ad-slot">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'c59dcb2a86e0d9b6de476b6b42d0bdd4',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/c59dcb2a86e0d9b6de476b6b42d0bdd4/invoke.js"></script>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active-nav" onclick="switchTab('dashboard')">🏠 <br><span id="nav-home">হোম</span></div>
+            <div class="nav-item" onclick="switchTab('withdraw')">💵 <br><span id="nav-cashout">টাকা তুলুন</span></div>
+        </div>
+    </div>
+
+    <div id="withdraw-screen" class="screen">
+        <h2 style="margin-bottom: 20px;" id="wd-title">টাকা উত্তোলন (Cash Out)</h2>
+        
+        <div class="wallet-card" style="background: #0f172a;">
+            <div>
+                <p id="wd-avail">উত্তোলনযোগ্য ব্যালেন্স</p>
+                <h3 id="wd-coin-display" style="color:#00c6ff">0 Coins</h3>
+            </div>
+        </div>
+
+        <label style="align-self: flex-start; margin-top:10px;" id="lbl-method">পেমেন্ট মেথড সিলেক্ট করুন:</label>
+        <select id="payment-method">
+            <option value="Bkash">Bkash (বিকাশ)</option>
+            <option value="Nagad">Nagad (নগদ)</option>
+            <option value="Paytm">Paytm</option>
+            <option value="UPI">UPI ID</option>
+        </select>
+
+        <input type="text" id="payment-number" placeholder="মোবাইল নম্বর বা UPI আইডি দিন">
+        <input type="number" id="payment-amount" placeholder="কয়েন এর পরিমাণ দিন (সর্বনিম্ন ৫০)">
+
+        <button class="btn" style="background: linear-gradient(135deg, #f857a6, #ff5858);" onclick="handleWithdraw()" id="btn-wd-submit">AI ক্যাশআউট রিকোয়েস্ট</button>
+
+        <p style="font-size:12px; color:#a0aec0; text-align:center; margin-top:15px;" id="wd-note">💡 আমাদের এআই (AI System) ১ মিনিটের মধ্যে আপনার অ্যাকাউন্ট যাচাই করে পেমেন্ট সম্পন্ন করে দেবে।</p>
+
+        <!-- Ad Slot 2 (Inside Withdraw Screen) -->
+        <div class="ad-slot" style="margin-top: 20px;">
+             <!-- Ad script will auto-load here -->
+        </div>
+
+        <div class="bottom-nav" style="position: absolute; bottom: 0; left: 0;">
+            <div class="nav-item" onclick="switchTab('dashboard')">🏠 <br>হোম</div>
+            <div class="nav-item active-nav" onclick="switchTab('withdraw')">💵 <br>টাকা তুলুন</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // App State Variables
+    let userCoins = 0;
+    const coinsPerDollar = 50;
+    let currentLang = 'bn';
+
+    // Language Dictionary
+    const langData = {
+        bn: {
+            loginBtn: "লগইন / রেজিস্টার", namePh: "আপনার পুরো নাম (Full Name)", emailPh: "ইমেইল এড্রেস (Email)", passPh: "পাসওয়ার্ড (Password)",
+            balance: "মোট ব্যালেন্স", value: "মূল্য ($)", quiz: "কুইজ খেলুন", spin: "লাকি স্পিন", math: "অংক করুন",
+            scratch: "স্ক্র্যাচ কার্ড", game: "গেম খেলুন", ad: "ভিডিও অ্যাড", refer: "বন্ধুদের ইনভাইট করে ১০০০ কয়েন পান!",
+            btnRef: "রেফার কোড ব্যবহার করুন", home: "হোম", cashout: "টাকা তুলুন", wdTitle: "টাকা উত্তোলন (Cash Out)",
+            avail: "উত্তোলনযোগ্য ব্যালেন্স", lblMethod: "পেমেন্ট মেথড সিলেক্ট করুন:", numPh: "মোবাইল নম্বর বা UPI আইডি দিন",
+            amountPh: "কয়েন এর পরিমাণ দিন (সর্বনিম্ন ৫০)", btnWd: "AI ক্যাশআউট রিকোয়েস্ট",
+            note: "💡 আমাদের এআই (AI System) ১ মিনিটের মধ্যে আপনার অ্যাকাউন্ট যাচাই করে পেমেন্ট সম্পন্ন করে দেবে।"
+        },
+        en: {
+            loginBtn: "Login / Register", namePh: "Full Name", emailPh: "Email Address", passPh: "Password",
+            balance: "Total Balance", value: "Value ($)", quiz: "Play Quiz", spin: "Lucky Spin", math: "Math Quiz",
+            scratch: "Scratch Card", game: "Play Games", ad: "Watch Video Ad", refer: "Invite friends & get 1000 coins!",
+            btnRef: "Apply Referral Code", home: "Home", cashout: "Cash Out", wdTitle: "Withdraw Money",
+            avail: "Withdrawable Balance", lblMethod: "Select Payment Method:", numPh: "Enter Mobile Number or UPI ID",
+            amountPh: "Enter Coins (Min 50)", btnWd: "AI Cashout Request",
+            note: "💡 Our AI System will verify your account and complete the payment within 1 minute."
+        },
+        ar: {
+            loginBtn: "تسجيل الدخول", namePh: "الاسم الكامل", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور",
+            balance: "إجمالي الرصيد", value: "القيمة ($)", quiz: "العب مسابقة", spin: "العجلة الدوارة", math: "رياضيات",
+            scratch: "بطاقة حك", game: "العاب", ad: "شاهد إعلان فيديو", refer: "دعوة الأصدقاء واحصل على 1000 نقطة!",
+            btnRef: "تطبيق رمز الإحالة", home: "رئيسية", cashout: "صرف الدفعات", wdTitle: "سحب الأموال",
+            avail: "الرصيد المتاح للسحب", lblMethod: "اختر طريقة الدفع:", numPh: "أدخل رقم الهاتف أو معرف UPI",
+            amountPh: "أدخل العملات (الحد الأدنى 50)", btnWd: "طلب سحب الذكاء الاصطناعي",
+            note: "💡 سيتعامل نظام الذكاء الاصطناعي لدينا مع طلبك ويرسل الدفع في غضون دقيقة واحدة."
+        },
+        hi: {
+            loginBtn: "लॉगिन / रजिस्टर", namePh: "पूरा नाम", emailPh: "ईमेल एड्रेस", passPh: "पासवर्ड",
+            balance: "कुल बैलेंस", value: "मूल्य ($)", quiz: "क्विज खेलें", spin: "लकी स्पिन", math: "गणित खेल",
+            scratch: "स्क्रैच कार्ड", game: "गेम खेलें", ad: "वीडियो विज्ञापन देखें", refer: "दोस्तों को आमंत्रित करें और 1000 सिक्के पाएं!",
+            btnRef: "रेफरल कोड का उपयोग करें", home: "होम", cashout: "पैसे निकालें", wdTitle: "नकद निकासी",
+            avail: "निकासी योग्य बैलेंस", lblMethod: "भुगतान विधि चुनें:", numPh: "मोबाइल नंबर या UPI आईडी दर्ज करें",
+            amountPh: "सिक्के दर्ज करें (न्यूनतम 50)", btnWd: "AI कैशआउट अनुरोध",
+            note: "💡 हमारा AI सिस्टम आपके खाते की जांच करेगा और 1 मिनट के भीतर भुगतान पूरा कर देगा।"
+        }
+    };
+
+    // Handle User Login & Profile Creation
+    function handleLogin() {
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('reg-email').value;
+
+        if(!name || !email) {
+            alert(currentLang === 'bn' ? "অনুগ্রহ করে সব তথ্য দিন!" : "Please fill in all fields!");
+            return;
+        }
+
+        document.getElementById('user-display-name').innerText = name;
+        document.getElementById('user-avatar').innerText = name.charAt(0).toUpperCase();
+
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('dashboard-screen').classList.add('active');
+        
+        triggerAI("Profile Account Created Successfully. Welcome back!");
+    }
+
+    function triggerAI(message) {
+        const aiBox = document.getElementById('ai-box');
+        aiBox.style.display = 'block';
+        aiBox.innerText = `🤖 AI Core: ${message}`;
+        setTimeout(() => {
+            aiBox.style.display = 'none';
+        }, 4000);
+    }
+
+    function updateBalances() {
+        document.getElementById('coin-balance').innerText = `${userCoins} Coins`;
+        document.getElementById('wd-coin-display').innerText = `${userCoins} Coins`;
+        let usdValue = (userCoins / coinsPerDollar).toFixed(2);
+        document.getElementById('usd-balance').innerText = `$${usdValue}`;
+    }
+
+    function playTask(taskType, coinsReward) {
+        userCoins += coinsReward;
+        updateBalances();
+        triggerAI(`AI added +${coinsReward} coins automatically for ${taskType.toUpperCase()} task.`);
+        alert(currentLang === 'bn' ? `অভিনন্দন! আপনি ${coinsReward} কয়েন পেয়েছেন।` : `Congratulations! You earned ${coinsReward} coins.`);
+    }
+
+    function applyReferral() {
+        userCoins += 1000;
+        updateBalances();
+        triggerAI("AI processed referral. Bonus +1000 coins credited.");
+        document.getElementById('btn-refer').disabled = true;
+        document.getElementById('btn-refer').style.opacity = '0.5';
+        alert(currentLang === 'bn' ? "সফল রেফারেল! ১০০০ কয়েন যোগ করা হয়েছে।" : "Referral Applied! +1000 Coins Added.");
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        if(tab === 'dashboard') {
+            document.getElementById('dashboard-screen').classList.add('active');
+        } else if(tab === 'withdraw') {
+            document.getElementById('withdraw-screen').classList.add('active');
+        }
+    }
+
+    function handleWithdraw() {
+        const method = document.getElementById('payment-method').value;
+        const number = document.getElementById('payment-number').value;
+        const amount = parseInt(document.getElementById('payment-amount').value);
+
+        if(!number || isNaN(amount)) {
+            alert(currentLang === 'bn' ? "সঠিক তথ্য প্রদান করুন!" : "Please fill in all details correctly.");
+            return;
+        }
+
+        if(amount < 50) {
+            alert(currentLang === 'bn' ? "সর্বনিম্ন ৫০ কয়েন তুলতে হবে ($১ ডলার)!" : "Minimum cashout is 50 coins ($1)!");
+            return;
+        }
+
+        if(userCoins < amount) {
+            alert(currentLang === 'bn' ? "আপনার অ্যাকাউন্টে পর্যাপ্ত কয়েন নেই!" : "Insufficient coins in your account!");
+            return;
+        }
+
+        userCoins -= amount;
+        updateBalances();
+
+        triggerAI(`AI Approved payment of ${amount} coins to ${method} [${number}]. Status: Pending.`);
+
+        alert(currentLang === 'bn' ? 
+            `✅ এআই পেমেন্ট রিকোয়েস্ট সফল! ১ মিনিটের মধ্যে আপনার ${method} নম্বরে টাকা চলে যাবে।` : 
+            `✅ AI Payment Request Successful! Funds will arrive via ${method} within 1 minute.`
+        );
+
+        setTimeout(() => {
+            alert(`🤖 [AI CONFIRMATION]: Cash Out amount for ${number} has been 100% successfully transferred via ${method}.`);
+        }, 60000);
+
+        document.getElementById('payment-number').value = "";
+        document.getElementById('payment-amount').value = "";
+    }
+
+    function changeLanguage() {
+        currentLang = document.getElementById('lang-select').value;
+        document.getElementById('dashboard-lang').value = currentLang;
+        localizeApp();
+    }
+
+    function syncLanguage(val) {
+        currentLang = val;
+        document.getElementById('lang-select').value = val;
+        localizeApp();
+    }
+
+    function localizeApp() {
+        const data = langData[currentLang];
+        // Forms Placeholder
+        document.getElementById('reg-name').placeholder = data.namePh;
+        document.getElementById('reg-email').placeholder = data.emailPh;
+        document.getElementById('reg-pass').placeholder = data.passPh;
+        document.getElementById('btn-login').innerText = data.loginBtn;
+        // Dashboard
+        document.getElementById('txt-balance').innerText = data.balance;
+        document.getElementById('txt-balance').innerText = data.balance;
+        document.getElementById('txt-value').innerText = data.value;
+        document.getElementById('task-quiz').innerText = data.quiz;
+        document.getElementById('task-spin').innerText = data.spin;
+        document.getElementById('task-math').innerText = data.math;
+        document.getElementById('task-scratch').innerText = data.scratch;
+        document.getElementById('task-game').innerText = data.game;
+        document.getElementById('task-ad').innerText = data.ad;
+        document.getElementById('txt-refer').innerText = data.refer;
+        document.getElementById('btn-refer').innerText = data.btnRef;
+        document.getElementById('nav-home').innerText = data.home;
+        document.getElementById('nav-cashout').innerText = data.cashout;
+        // Withdraw Screen
+        document.getElementById('wd-title').innerText = data.wdTitle;
+        document.getElementById('wd-avail').innerText = data.avail;
+        document.getElementById('lbl-method').innerText = data.lblMethod;
+        document.getElementById('payment-number').placeholder = data.numPh;
+        document.getElementById('payment-amount').placeholder = data.amountPh;
+        document.getElementById('btn-wd-submit').innerText = data.btnWd;
+        document.getElementById('wd-note').innerText = data.note;
+    }
+</script>
+
+</body>
+</html>
